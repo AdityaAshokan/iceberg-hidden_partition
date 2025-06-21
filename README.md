@@ -35,6 +35,53 @@ spark-shell \
   --conf spark.sql.catalog.local.type=hadoop \
   --conf spark.sql.catalog.local.warehouse=warehouse \
   --conf spark.sql.extensions=org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions
+```
+step 2: Run the code 
 
-Step 2: Paste the hidden_partition.txt file code into the shell
+After the Spark shell launches, do the following:
 
+1. Open the file `hidden_partition.txt`.
+2. **Copy** all the Scala code from the file.
+3. **Paste** it directly into the `spark-shell` terminal.
+4. Press Enter to execute.
+
+The code will:
+- Drop the existing table (if any)
+- Create a new Iceberg table partitioned by `days(event_time)`
+- Insert sample data
+- Query the data
+- Show the internal hidden partition structure
+
+
+## View Hidden Partitions in Iceberg Metadata
+
+``` bash
+spark.sql("SELECT partition FROM local.db.users.files").show(false)
+```
+### Sample Output 
+```bash
++------------+
+|partition   |
++------------+
+|{2025-06-21}|
++------------+
+```
+This confirms that Iceberg partitioned the data using days(event_time) — the value 2025-06-21 is the hidden transformed partition, not part of the user-visible schema.
+
+## Check Partition Pruning with Explain
+
+.explain(true) to confirm that Spark and Iceberg are working together to prune partitions during queries
+
+```bash
+spark.sql("""
+  SELECT * FROM local.db.users
+  WHERE event_time >= TIMESTAMP '2025-06-21 00:00:00'
+""").explain(true)
+```
+
+In Physical plan we can see 
+
+```bash
+[filters=event_time IS NOT NULL, event_time >= ...]
+```
+This means Spark pushed the filter down to the Iceberg scan, and Iceberg will only read the matching partition(s), thanks to hidden partitioning
