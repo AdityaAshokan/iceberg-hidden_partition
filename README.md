@@ -22,4 +22,19 @@ You benefit from:
 - Scala 2.12.x
 - Iceberg runtime JAR (Spark 3.4 version):
 
+## How to Run
+
+### Use spark shell (Quick Demo)
+
+Step 1: Launch Spark Shell with Iceberg
+
+```bash
+spark-shell \
+  --packages org.apache.iceberg:iceberg-spark-runtime-3.4_2.12:1.4.2 \
+  --conf spark.sql.catalog.local=org.apache.iceberg.spark.SparkCatalog \
+  --conf spark.sql.catalog.local.type=hadoop \
+  --conf spark.sql.catalog.local.warehouse=warehouse \
+  --conf spark.sql.extensions=org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions
+
+Step 2: Paste the hidden_partition.txt file code into the shell
 

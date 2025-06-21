@@ -1,0 +1,35 @@
+
+// Drop table if exists
+spark.sql("DROP TABLE IF EXISTS local.db.users")
+
+// Create Iceberg table with hidden partitioning
+spark.sql("""
+  CREATE TABLE local.db.users (
+    id INT,
+    name STRING,
+    event_time TIMESTAMP
+  )
+  USING iceberg
+  PARTITIONED BY (days(event_time))
+""")
+
+// Insert some sample data
+spark.sql("""
+  INSERT INTO local.db.users VALUES
+  (1, 'alice', current_timestamp()),
+  (2, 'bob', current_timestamp())
+""")
+
+// Show table content
+spark.sql("SELECT * FROM local.db.users").show(false)
+
+// Show internal partition metadata
+spark.sql("SELECT partition FROM local.db.users.files").show(false)
+
+// Explain query with potential partition pruning
+spark.sql("""
+  SELECT * FROM local.db.users
+  WHERE event_time >= TIMESTAMP '2025-06-21 00:00:00'
+""").explain(true)
+
+spark.stop()
