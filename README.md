@@ -59,13 +59,9 @@ The code will:
 spark.sql("SELECT partition FROM local.db.users.files").show(false)
 ```
 ### Sample Output 
-```bash
-+------------+
-|partition   |
-+------------+
-|{2025-06-21}|
-+------------+
-```
+
+![Alt text](HiddenPartitioning.png)
+
 This confirms that Iceberg partitioned the data using days(event_time) — the value 2025-06-21 is the hidden transformed partition, not part of the user-visible schema.
 
 ## Check Partition Pruning with Explain
