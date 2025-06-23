@@ -36,7 +36,7 @@ spark-shell \
   --conf spark.sql.catalog.local.warehouse=warehouse \
   --conf spark.sql.extensions=org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions
 ```
-step 2: Run the code 
+Step 2: Run the code 
 
 After the Spark shell launches, do the following:
 
